@@ -1,24 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PiggyBet {
-  String id;
-  String userId;
-  String challengeDescription;
-  String rewardTitle;
-  String rewardCategory;
-  double piggyBankValue;
-  String frequency;
-  DateTime startDate;
-  DateTime endDate;
-  String participantType; // "self" or "friend"
-  String status; // "active", "completed", "failed"
-  int streakCount;
-  int jokerCount;
+  final String id;
+  final String userId;
+  final String challengeCategory;  // Add this field
+  final String challengeDescription;
+  final String rewardTitle;
+  final String rewardCategory;
+  final double piggyBankValue;
+  final String frequency;
+  final DateTime startDate;
+  final DateTime endDate;
+  final String participantType;
+  final String status;
+  final int streakCount;
+  final int jokerCount;
   String? participantId;
 
   PiggyBet({
     required this.id,
     required this.userId,
+    required this.challengeCategory,  // Add this parameter
     required this.challengeDescription,
     required this.rewardTitle,
     required this.rewardCategory,
@@ -37,6 +39,7 @@ class PiggyBet {
     return PiggyBet(
       id: documentId,
       userId: data['userId'] ?? '',
+      challengeCategory: data['challengeCategory'] ?? '',  // Add this field
       challengeDescription: data['challengeDescription'] ?? '',
       rewardTitle: data['rewardTitle'] ?? '',
       rewardCategory: data['rewardCategory'] ?? '',
@@ -55,6 +58,7 @@ class PiggyBet {
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
+      'challengeCategory': challengeCategory,  // Add this field
       'challengeDescription': challengeDescription,
       'rewardTitle': rewardTitle,
       'rewardCategory': rewardCategory,
