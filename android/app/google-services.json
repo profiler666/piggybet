@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "737735399868",
+    "project_id": "piggybet666",
+    "storage_bucket": "piggybet666.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:737735399868:android:e5bcd8e15432f00e8ff3b9",
+        "android_client_info": {
+          "package_name": "com.example.piggybet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrzwXLk-VTGjseDm7a9hMmLpDhOb5sI9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
