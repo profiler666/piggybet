@@ -15,195 +15,77 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
   final _rewardController = TextEditingController();
   final _betService = BetService();
   
-  // New controllers and variables
+  int _currentStep = 0;
+  
+  // Challenge step
   String _challengeCategory = 'Routine';
   String _frequency = 'everyday';
   DateTime _startDate = DateTime.now();
   DateTime _endDate = DateTime.now().add(const Duration(days: 28));
-  double _piggyBankValue = 1.0;
+  
+  // Reward step
   String _rewardCategory = 'Self-care';
+  double _piggyBankValue = 1.0;
+  
+  // Participant step
   String _participantType = 'self';
 
-  // Predefined options
   final List<String> _challengeCategories = ['Routine', 'Wellness', 'Learning', 'Fitness'];
   final List<String> _frequencies = ['everyday', 'weekly', 'weekdays', 'weekends'];
   final List<String> _rewardCategories = ['Self-care', 'Entertainment', 'Food', 'Shopping'];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Create PiggyBet')),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+  Widget _buildChallengeStep() {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: _currentStep == 0 ? 1.0 : 0.0,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Challenge Section
             const Text(
-              'Challenge Details',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'What\'s your challenge?',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               value: _challengeCategory,
-              decoration: const InputDecoration(labelText: 'Category'),
+              decoration: const InputDecoration(
+                labelText: 'Category',
+                border: OutlineInputBorder(),
+              ),
               items: _challengeCategories.map((category) {
                 return DropdownMenuItem(
                   value: category,
                   child: Text(category),
                 );
               }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _challengeCategory = value ?? 'Routine';
-                });
-              },
+              onChanged: (value) => setState(() => _challengeCategory = value!),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextFormField(
               controller: _challengeController,
               decoration: const InputDecoration(
-                labelText: 'What\'s your challenge?',
-                hintText: 'e.g., 30 push-ups every day',
+                labelText: 'Description',
+                hintText: 'e.g., 30 push-ups',
+                border: OutlineInputBorder(),
               ),
               validator: (value) => value?.isEmpty ?? true ? 'Please enter a challenge' : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             DropdownButtonFormField<String>(
               value: _frequency,
-              decoration: const InputDecoration(labelText: 'Frequency'),
+              decoration: const InputDecoration(
+                labelText: 'How often?',
+                border: OutlineInputBorder(),
+              ),
               items: _frequencies.map((frequency) {
                 return DropdownMenuItem(
                   value: frequency,
                   child: Text(frequency),
                 );
               }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _frequency = value ?? 'everyday';
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: ListTile(
-                    title: const Text('Start Date'),
-                    subtitle: Text(_startDate.toString().split(' ')[0]),
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _startDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _startDate = picked;
-                          _endDate = picked.add(const Duration(days: 28));
-                        });
-                      }
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: ListTile(
-                    title: const Text('End Date'),
-                    subtitle: Text(_endDate.toString().split(' ')[0]),
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _endDate,
-                        firstDate: _startDate,
-                        lastDate: _startDate.add(const Duration(days: 365)),
-                      );
-                      if (picked != null) {
-                        setState(() {
-                          _endDate = picked;
-                        });
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 32),
-            // Reward Section
-            const Text(
-              'Reward Details',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _rewardCategory,
-              decoration: const InputDecoration(labelText: 'Category'),
-              items: _rewardCategories.map((category) {
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _rewardCategory = value ?? 'Self-care';
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _rewardController,
-              decoration: const InputDecoration(
-                labelText: 'What\'s your reward?',
-                hintText: 'e.g., One day at the SPA',
-              ),
-              validator: (value) => value?.isEmpty ?? true ? 'Please enter a reward' : null,
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              title: Text('Piggy Bank Value: €${_piggyBankValue.toStringAsFixed(2)}'),
-              subtitle: Slider(
-                value: _piggyBankValue,
-                min: 1.0,
-                max: 10.0,
-                divisions: 9,
-                label: '€${_piggyBankValue.toStringAsFixed(2)}',
-                onChanged: (value) => setState(() => _piggyBankValue = value),
-              ),
-            ),
-
-            const SizedBox(height: 32),
-            // Participant Section
-            const Text(
-              'Who will do this challenge?',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: () => setState(() => _participantType = 'self'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _participantType == 'self' ? Colors.deepPurple : null,
-                  ),
-                  child: const Text('Bet on Myself'),
-                ),
-                ElevatedButton(
-                  onPressed: () => setState(() => _participantType = 'friend'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _participantType == 'friend' ? Colors.deepPurple : null,
-                  ),
-                  child: const Text('Invite a Friend'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: _submitBet,
-              child: const Text('Create PiggyBet'),
+              onChanged: (value) => setState(() => _frequency = value!),
             ),
           ],
         ),
@@ -211,14 +93,209 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
     );
   }
 
-  // Update _submitBet to include all parameters
+  Widget _buildRewardStep() {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: _currentStep == 1 ? 1.0 : 0.0,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Choose your reward',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            DropdownButtonFormField<String>(
+              value: _rewardCategory,
+              decoration: const InputDecoration(
+                labelText: 'Category',
+                border: OutlineInputBorder(),
+              ),
+              items: _rewardCategories.map((category) {
+                return DropdownMenuItem(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList(),
+              onChanged: (value) => setState(() => _rewardCategory = value!),
+            ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _rewardController,
+              decoration: const InputDecoration(
+                labelText: 'What\'s your reward?',
+                hintText: 'e.g., One day at the SPA',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) => value?.isEmpty ?? true ? 'Please enter a reward' : null,
+            ),
+            const SizedBox(height: 20),
+            Text('Piggy Bank Value: €${_piggyBankValue.toStringAsFixed(2)}'),
+            Slider(
+              value: _piggyBankValue,
+              min: 1.0,
+              max: 10.0,
+              divisions: 9,
+              label: '€${_piggyBankValue.toStringAsFixed(2)}',
+              onChanged: (value) => setState(() => _piggyBankValue = value),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParticipantStep() {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: _currentStep == 2 ? 1.0 : 0.0,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Who\'s taking this challenge?',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildParticipantOption(
+                  icon: Icons.person,
+                  title: 'Bet on Myself',
+                  isSelected: _participantType == 'self',
+                  onTap: () => setState(() => _participantType = 'self'),
+                ),
+                _buildParticipantOption(
+                  icon: Icons.people,
+                  title: 'Invite a Friend',
+                  isSelected: _participantType == 'friend',
+                  onTap: () => setState(() => _participantType = 'friend'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParticipantOption({
+    required IconData icon,
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.deepPurple.withOpacity(0.1) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.deepPurple : Colors.grey,
+            width: 2,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              icon,
+              size: 48,
+              color: isSelected ? Colors.deepPurple : Colors.grey,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.deepPurple : Colors.grey,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          ['Challenge', 'Reward', 'Participant'][_currentStep],
+          style: const TextStyle(color: Colors.black87),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            LinearProgressIndicator(
+              value: (_currentStep + 1) / 3,
+              backgroundColor: Colors.grey[200],
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: [
+                    _buildChallengeStep(),
+                    _buildRewardStep(),
+                    _buildParticipantStep(),
+                  ][_currentStep],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  if (_currentStep > 0)
+                    TextButton(
+                      onPressed: () => setState(() => _currentStep--),
+                      child: const Text('Back'),
+                    )
+                  else
+                    const SizedBox.shrink(),
+                  ElevatedButton(
+                    onPressed: _currentStep < 2 
+                        ? () => setState(() => _currentStep++)
+                        : _submitBet,
+                    child: Text(_currentStep < 2 ? 'Next' : 'Create PiggyBet'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _submitBet() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
+        // Show loading indicator
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Creating your PiggyBet...')),
+        );
+
         final bet = PiggyBet(
           id: '',
           userId: 'temp_user_id',
-          challengeCategory: _challengeCategory,  // Add this line
+          challengeCategory: _challengeCategory,
           challengeDescription: _challengeController.text,
           rewardTitle: _rewardController.text,
           rewardCategory: _rewardCategory,
@@ -230,21 +307,30 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
           status: 'active',
           streakCount: 0,
           jokerCount: 0,
+          createdAt: DateTime.now(),  // Add this line
+          lastCheckinAt: null,  // Add this line
         );
 
         await _betService.createBet(bet);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Bet created successfully!')),
-          );
-          Navigator.pop(context);
-        }
+
+        if (!mounted) return;
+
+        // Navigate to home screen using named route
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          '/', // Home route
+          (route) => false, // Remove all previous routes
+        );
+
+        // Show success message after navigation
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('PiggyBet created successfully!')),
+        );
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error creating bet: $e')),
-          );
-        }
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error creating bet: $e')),
+        );
       }
     }
   }

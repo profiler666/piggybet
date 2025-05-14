@@ -1,22 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/piggy_bet.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
 
 class BetService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> createBet(PiggyBet bet) async {
     try {
-      debugPrint('Starting to create bet...');
-      debugPrint('Bet data: ${bet.toMap()}');
+      final betData = bet.toMap();
+      betData['createdAt'] = Timestamp.now();  // Set creation time
       
-      final docRef = await _firestore.collection('bets').add(bet.toMap());
-      debugPrint('Document created with ID: ${docRef.id}');
-      
+      final docRef = await _firestore.collection('bets').add(betData);
       await docRef.update({'id': docRef.id});
-      debugPrint('Document updated with ID');
     } catch (e) {
-      debugPrint('Error creating bet: $e');
       throw Exception('Failed to create bet: $e');
     }
   }
@@ -33,6 +28,14 @@ class BetService {
           .toList();
     } catch (e) {
       throw Exception('Failed to get user bets: $e');
+    }
+  }
+
+  Future<void> deleteBet(String betId) async {
+    try {
+      await _firestore.collection('bets').doc(betId).delete();
+    } catch (e) {
+      throw Exception('Failed to delete bet: $e');
     }
   }
 }

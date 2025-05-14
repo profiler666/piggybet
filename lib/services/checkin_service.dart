@@ -1,13 +1,99 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart' show debugPrint;
+import '../models/piggy_bet.dart';
 
 class CheckinService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  DateTime getNextDeadline(PiggyBet bet) {
+    final now = DateTime.now();
+    
+    // Get the reference time (either last check-in or creation time)
+    final referenceTime = bet.lastCheckinAt ?? bet.createdAt;
+    
+    // Calculate next deadline based on frequency
+    switch (bet.frequency) {
+      case 'everyday':
+        // Calculate next deadline based on creation time
+        var nextDeadline = DateTime(
+          referenceTime.year,
+          referenceTime.month,
+          referenceTime.day,
+          bet.createdAt.hour,
+          bet.createdAt.minute,
+          bet.createdAt.second,
+        );
+
+        // If we're past that time, add 24 hours
+        while (nextDeadline.isBefore(now)) {
+          nextDeadline = nextDeadline.add(const Duration(days: 1));
+        }
+        return nextDeadline;
+
+      case 'weekly':
+        // Start from reference time and add weeks until we find next deadline
+        var nextDeadline = DateTime(
+          referenceTime.year,
+          referenceTime.month,
+          referenceTime.day,
+          bet.createdAt.hour,
+          bet.createdAt.minute,
+          bet.createdAt.second,
+        );
+
+        while (nextDeadline.isBefore(now)) {
+          nextDeadline = nextDeadline.add(const Duration(days: 7));
+        }
+        return nextDeadline;
+
+      case 'weekdays':
+        // Start from reference time
+        var nextDeadline = DateTime(
+          referenceTime.year,
+          referenceTime.month,
+          referenceTime.day,
+          bet.createdAt.hour,
+          bet.createdAt.minute,
+          bet.createdAt.second,
+        );
+
+        while (nextDeadline.isBefore(now) || 
+               nextDeadline.weekday == DateTime.saturday || 
+               nextDeadline.weekday == DateTime.sunday) {
+          nextDeadline = nextDeadline.add(const Duration(days: 1));
+        }
+        return nextDeadline;
+
+      case 'weekends':
+        // Start from reference time
+        var nextDeadline = DateTime(
+          referenceTime.year,
+          referenceTime.month,
+          referenceTime.day,
+          bet.createdAt.hour,
+          bet.createdAt.minute,
+          bet.createdAt.second,
+        );
+
+        while (nextDeadline.isBefore(now) || 
+               nextDeadline.weekday < DateTime.saturday) {
+          nextDeadline = nextDeadline.add(const Duration(days: 1));
+        }
+        return nextDeadline;
+
+      default:
+        return DateTime(
+          referenceTime.year,
+          referenceTime.month,
+          referenceTime.day,
+          bet.createdAt.hour,
+          bet.createdAt.minute,
+          bet.createdAt.second,
+        ).add(const Duration(days: 1));
+    }
+  }
+
   Future<void> recordCheckin(String betId) async {
     try {
-      debugPrint('Recording check-in for bet: $betId');
-      
       final betRef = _firestore.collection('bets').doc(betId);
       final betDoc = await betRef.get();
       
@@ -19,12 +105,16 @@ class CheckinService {
       
       await betRef.update({
         'streakCount': currentStreak + 1,
-        'lastCheckin': Timestamp.now(),
+        'lastCheckinAt': Timestamp.now(),
       });
-      
-      debugPrint('Check-in recorded successfully');
+
+      // Award joker after 7 consecutive check-ins
+      if ((currentStreak + 1) % 7 == 0) {
+        await betRef.update({
+          'jokerCount': FieldValue.increment(1),
+        });
+      }
     } catch (e) {
-      debugPrint('Error recording check-in: $e');
       throw Exception('Failed to record check-in: $e');
     }
   }
