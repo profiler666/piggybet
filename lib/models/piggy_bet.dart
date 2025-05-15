@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PiggyBet {
+  static const int maxJokers = 3;
+
   final String id;
   final String userId;
   final String challengeCategory;

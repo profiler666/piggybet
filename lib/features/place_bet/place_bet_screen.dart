@@ -31,7 +31,11 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
   String _participantType = 'self';
 
   final List<String> _challengeCategories = ['Routine', 'Wellness', 'Learning', 'Fitness'];
-  final List<String> _frequencies = ['everyday', 'weekly', 'weekdays', 'weekends'];
+  final List<String> _frequencies = [
+    'every minute', // For testing
+    'everyday',
+    'weekly',
+  ];
   final List<String> _rewardCategories = ['Self-care', 'Entertainment', 'Food', 'Shopping'];
 
   Widget _buildChallengeStep() {
@@ -71,6 +75,76 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) => value?.isEmpty ?? true ? 'Please enter a challenge' : null,
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _startDate,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime.now().add(const Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _startDate = picked;
+                          // Ensure end date is not before start date
+                          if (_endDate.isBefore(_startDate)) {
+                            _endDate = _startDate.add(const Duration(days: 28));
+                          }
+                        });
+                      }
+                    },
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Start Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(
+                        '${_startDate.day}/${_startDate.month}/${_startDate.year}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _endDate,
+                        firstDate: _startDate,
+                        lastDate: _startDate.add(const Duration(days: 365)),
+                      );
+                      if (picked != null) {
+                        setState(() => _endDate = picked);
+                      }
+                    },
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'End Date',
+                        border: OutlineInputBorder(),
+                      ),
+                      child: Text(
+                        '${_endDate.day}/${_endDate.month}/${_endDate.year}',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Duration: ${_endDate.difference(_startDate).inDays + 1} days',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 14,
+              ),
             ),
             const SizedBox(height: 20),
             DropdownButtonFormField<String>(

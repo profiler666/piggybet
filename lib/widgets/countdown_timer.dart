@@ -27,14 +27,14 @@ class _CountdownTimerState extends State<CountdownTimer> {
   }
 
   void _calculateTimeLeft() {
+    if (!mounted) return;
+    
     final now = DateTime.now();
     final difference = widget.deadline.difference(now);
     
-    if (mounted) {
-      setState(() {
-        _timeLeft = difference.isNegative ? const Duration() : difference;
-      });
-    }
+    setState(() {
+      _timeLeft = difference.isNegative ? const Duration() : difference;
+    });
 
     if (difference.isNegative) {
       _timer.cancel();
