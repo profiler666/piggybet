@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Add this import
+import 'package:firebase_auth/firebase_auth.dart';
 import 'core/firebase_options.dart';
 import 'routing/app_router.dart';
 import 'features/home/home_screen.dart';
@@ -8,16 +8,37 @@ import 'features/place_bet/place_bet_screen.dart';
 import 'features/checkin/checkin_screen.dart';
 import 'features/friends/friends_screen.dart';
 import 'services/auth_service.dart';
+import 'services/app_links_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  
+  // Initialize Firebase first
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // Ensure user is authenticated
   final authService = AuthService();
   await authService.ensureAuthenticated();
+
+  // Initialize app links handler
+  final appLinks = AppLinksService();
+  
+  // Check for initial link that launched the app
+  final initialUri = await appLinks.getInitialLink();
+  if (initialUri != null) {
+    final betId = initialUri.queryParameters['betId'];
+    print('App launched from invite link: $betId');
+    // Handle initial invite
+  }
+
+  // Listen for future links while app is running
+  appLinks.uriLinkStream.listen((Uri? uri) {
+    if (uri != null) {
+      final betId = uri.queryParameters['betId'];
+      print('Received bet invite: $betId');
+      // Handle invite
+    }
+  });
 
   runApp(const MyApp());
 }

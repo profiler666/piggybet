@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';  // Add this import
 import '../../models/piggy_bet.dart';
 import '../../services/bet_service.dart';
 import '../../services/auth_service.dart';
 import '../../routing/app_router.dart';
+import '../../services/invite_service.dart';
 
 class PlaceBetScreen extends StatefulWidget {
   const PlaceBetScreen({super.key});
@@ -16,6 +18,7 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
   final _challengeController = TextEditingController();
   final _rewardController = TextEditingController();
   final _betService = BetService();
+  final _inviteService = InviteService();
   
   int _currentStep = 0;
   
@@ -367,7 +370,6 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
           throw Exception('User must be authenticated to create a bet');
         }
 
-        // Show loading dialog with feedback
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -379,10 +381,7 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
                 SizedBox(height: 16),
                 Text(
                   'Creating your PiggyBet...',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],
             ),
@@ -408,11 +407,57 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
           lastCheckinAt: null,
         );
 
+        // Create the bet
         await _betService.createBet(bet);
-        
-        if (mounted) {
-          Navigator.of(context).pop(); // Remove loading dialog
-          Navigator.of(context).pushReplacementNamed(AppRouter.checkin);
+
+        // If inviting a friend, create and show invite link
+        if (_participantType == 'friend') {
+          final inviteLink = await _inviteService.createInvite(
+            betId: bet.id,
+            inviterId: userId,
+          );
+
+          if (mounted) {
+            Navigator.of(context).pop(); // Remove loading dialog
+            await showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text('Share Challenge'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('Share this link with your friend:'),
+                    const SizedBox(height: 16),
+                    SelectableText(inviteLink),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: inviteLink));
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Link copied!')),
+                        );
+                      }
+                    },
+                    child: const Text('Copy Link'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed(AppRouter.checkin);
+                    },
+                    child: const Text('Done'),
+                  ),
+                ],
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            Navigator.of(context).pop(); // Remove loading dialog
+            Navigator.of(context).pushReplacementNamed(AppRouter.checkin);
+          }
         }
       } catch (e) {
         if (mounted) {

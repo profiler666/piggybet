@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.example.piggybet",
+    "sha256_cert_fingerprints": ["8D:32:DC:5D:C9:C8:B0:B2:6A:5B:13:C1:69:64:55:89:09:1F:FC:D4:57:37:CD:00:A1:F6:BF:6F:49:2F:43:85"]
+  }
+}]
