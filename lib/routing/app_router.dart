@@ -4,6 +4,7 @@ import '../features/place_bet/place_bet_screen.dart';
 import '../features/join_bet/join_bet_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/checkin/checkin_screen.dart';  // Add this import
 
 class AppRouter {
   static const String home = '/';
@@ -11,6 +12,7 @@ class AppRouter {
   static const String joinBet = '/join-bet';
   static const String notifications = '/notifications';
   static const String settings = '/settings';
+  static const String checkin = '/checkin';  // Add this constant
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final String? path = settings.name;
@@ -29,6 +31,9 @@ class AppRouter {
     }
     if (path == settings) {
       return MaterialPageRoute(builder: (_) => const SettingsScreen());
+    }
+    if (path == checkin) {  // Add this handler
+      return MaterialPageRoute(builder: (_) => const CheckInScreen());
     }
 
     return MaterialPageRoute(

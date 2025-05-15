@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/piggy_bet.dart';
 import '../../services/bet_service.dart';
+import '../../services/auth_service.dart';
+import '../../routing/app_router.dart';
 
 class PlaceBetScreen extends StatefulWidget {
   const PlaceBetScreen({super.key});
@@ -360,15 +362,36 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
   Future<void> _submitBet() async {
     if (_formKey.currentState?.validate() ?? false) {
       try {
-        // Show loading indicator
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Creating your PiggyBet...')),
+        final userId = AuthService().currentUser?.uid;
+        if (userId == null) {
+          throw Exception('User must be authenticated to create a bet');
+        }
+
+        // Show loading dialog with feedback
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text(
+                  'Creating your PiggyBet...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
         );
 
         final bet = PiggyBet(
           id: '',
-          userId: 'temp_user_id',
+          userId: userId,
           challengeCategory: _challengeCategory,
           challengeDescription: _challengeController.text,
           rewardTitle: _rewardController.text,
@@ -381,30 +404,23 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
           status: 'active',
           streakCount: 0,
           jokerCount: 0,
-          createdAt: DateTime.now(),  // Add this line
-          lastCheckinAt: null,  // Add this line
+          createdAt: DateTime.now(),
+          lastCheckinAt: null,
         );
 
         await _betService.createBet(bet);
-
-        if (!mounted) return;
-
-        // Navigate to home screen using named route
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/', // Home route
-          (route) => false, // Remove all previous routes
-        );
-
-        // Show success message after navigation
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('PiggyBet created successfully!')),
-        );
+        
+        if (mounted) {
+          Navigator.of(context).pop(); // Remove loading dialog
+          Navigator.of(context).pushReplacementNamed(AppRouter.checkin);
+        }
       } catch (e) {
-        if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating bet: $e')),
-        );
+        if (mounted) {
+          Navigator.of(context).pop(); // Remove loading dialog
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error creating bet: $e')),
+          );
+        }
       }
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/piggy_bet.dart';
 import '../../services/bet_service.dart';
+import '../../services/auth_service.dart';
 import '../../services/checkin_service.dart';
 import '../../widgets/bet_card.dart';  // Add this import
 
@@ -53,12 +54,23 @@ class _CheckInScreenState extends State<CheckInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();  // Create instance
+    final userId = authService.currentUser?.uid;
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Check-In'),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(20),
+          child: Text(
+            'User ID: ${userId ?? 'Not authenticated'}',
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
       ),
       body: FutureBuilder<List<PiggyBet>>(
-        future: _betService.getUserBets('temp_user_id'),
+        // Remove hardcoded user ID
+        future: _betService.getUserBets(null), // Will use current user's ID
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

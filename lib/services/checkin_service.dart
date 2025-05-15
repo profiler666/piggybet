@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/piggy_bet.dart';
+import './auth_service.dart';
 
 class CheckinService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final AuthService _authService = AuthService();
 
   /// Returns the next deadline and whether the current period needs a check-in
   (DateTime deadline, bool needsCheckin) getNextDeadlineInfo(PiggyBet bet) {
@@ -51,6 +53,11 @@ class CheckinService {
 
   Future<void> recordCheckin(String betId) async {
     try {
+      final userId = _authService.currentUser?.uid;
+      if (userId == null) {
+        throw Exception('User must be authenticated to check in');
+      }
+
       final betRef = _firestore.collection('bets').doc(betId);
       final betDoc = await betRef.get();
       
@@ -58,16 +65,20 @@ class CheckinService {
         throw Exception('Bet not found');
       }
 
+      // Verify bet belongs to current user
+      if (betDoc.data()?['userId'] != userId) {
+        throw Exception('Unauthorized: Bet belongs to another user');
+      }
+
       final currentStreak = betDoc.data()?['streakCount'] ?? 0;
       final currentJokers = betDoc.data()?['jokerCount'] ?? 0;
       
-      // Record check-in time and update streak
       await betRef.update({
         'streakCount': currentStreak + 1,
         'lastCheckinAt': Timestamp.now(),
       });
 
-      // Award joker after 7 consecutive check-ins (if below max)
+      // Award joker after 7 consecutive check-ins
       if ((currentStreak + 1) % 7 == 0 && currentJokers < PiggyBet.maxJokers) {
         await betRef.update({
           'jokerCount': FieldValue.increment(1),
