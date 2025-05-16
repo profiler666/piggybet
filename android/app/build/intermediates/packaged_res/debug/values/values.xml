@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">737735399868</string>
+    <string name="google_api_key" translatable="false">AIzaSyCrzwXLk-VTGjseDm7a9hMmLpDhOb5sI9s</string>
+    <string name="google_app_id" translatable="false">1:737735399868:android:e5bcd8e15432f00e8ff3b9</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCrzwXLk-VTGjseDm7a9hMmLpDhOb5sI9s</string>
+    <string name="google_storage_bucket" translatable="false">piggybet666.firebasestorage.app</string>
+    <string name="project_id" translatable="false">piggybet666</string>
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>

@@ -1,154 +1,146 @@
-# PiggyBet Architecture
+# PiggyBet - Project Architecture
 
 ## Project Structure
 ```
-lib/
-├── core/
-│   └── firebase_options.dart
-├── features/
-│   ├── home/
-│   │   └── home_screen.dart
-│   ├── place_bet/
-│   │   ├── place_bet_screen.dart
-│   │   └── place_bet_controller.dart
-│   ├── checkin/
-│   │   └── checkin_screen.dart
-│   ├── friends/
-│   │   └── friends_screen.dart
-│   └── notifications/
-│       └── notifications_screen.dart
-├── models/
-│   └── piggy_bet.dart
-├── routing/
-│   └── app_router.dart
-├── services/
-│   ├── auth_service.dart
-│   ├── bet_service.dart
-│   ├── checkin_service.dart
-│   ├── invite_service.dart
-│   └── notification_service.dart
-├── widgets/
-│   ├── app_button.dart
-│   ├── bet_card.dart
-│   ├── checkin_card.dart
-│   └── piggybank_display.dart
-└── main.dart
+piggybet/
+├── lib/
+│   ├── core/
+│   │   ├── firebase_options.dart
+│   │   └── theme.dart
+│   ├── features/
+│   │   ├── auth/
+│   │   │   └── auth_screen.dart
+│   │   ├── checkin/
+│   │   │   └── checkin_screen.dart
+│   │   ├── friends/
+│   │   │   └── friends_screen.dart
+│   │   ├── home/
+│   │   │   └── home_screen.dart
+│   │   └── place_bet/
+│   │       └── place_bet_screen.dart
+│   ├── models/
+│   │   ├── invite.dart
+│   │   └── piggy_bet.dart
+│   ├── routing/
+│   │   └── app_router.dart
+│   ├── services/
+│   │   ├── app_links_service.dart
+│   │   ├── auth_service.dart
+│   │   ├── bet_service.dart
+│   │   └── invite_service.dart
+│   └── main.dart
+├── android/
+│   ├── app/
+│   │   ├── src/
+│   │   │   └── main/
+│   │   │       ├── AndroidManifest.xml
+│   │   │       └── res/
+│   │   │           └── raw/
+│   │   │               └── asset_statements.json
+│   │   └── build.gradle.kts
+│   └── build.gradle.kts
+└── web/
+    └── index.html
+
+## Technology Stack
+- Flutter 3.29.3
+- Dart 3.7.2
+- Firebase
+  - Authentication
+  - Firestore
+  - Dynamic Links (deprecated, using App Links instead)
+- Android App Links
+  - GitHub Pages for hosting assetlinks.json
+
+## Key Components
+
+### Services
+1. **AuthService**
+   - Handles user authentication
+   - Anonymous sign-in fallback
+   - Google Sign-In integration
+
+2. **BetService**
+   - CRUD operations for bets
+   - Real-time bet status updates
+   - Streak tracking
+
+3. **InviteService**
+   - Generate invite links
+   - Handle bet invitations
+   - Track invite status
+
+4. **AppLinksService**
+   - Deep linking configuration
+   - App-to-web navigation
+   - Universal link handling
+
+### Models
+1. **PiggyBet**
+   - Challenge description
+   - Reward details
+   - Progress tracking
+   - Participant information
+
+2. **Invite**
+   - Invitation status
+   - Bet reference
+   - Participant details
+
+### Features
+1. **Authentication**
+   - Google Sign-In
+   - Anonymous authentication
+   - User state management
+
+2. **Place Bet**
+   - Challenge creation
+   - Reward setting
+   - Friend invitation
+
+3. **Check-in**
+   - Daily progress tracking
+   - Streak management
+   - Joker system
+
+4. **Friends**
+   - Social connections
+   - Challenge sharing
+   - Leaderboards
+
+### Deep Linking
+- Host: profiler666.github.io
+- Path: /piggybet
+- Schemes: https, piggybet
+- Verification: .well-known/assetlinks.json
+
+## Firebase Collections
+```javascript
+/bets
+  ├── betId
+  │   ├── challengeDescription: string
+  │   ├── rewardTitle: string
+  │   ├── status: string
+  │   ├── streakCount: number
+  │   └── participants: array
+
+/invites
+  ├── inviteId
+  │   ├── betId: string
+  │   ├── inviterId: string
+  │   ├── status: string
+  │   └── createdAt: timestamp
 ```
 
-## Feature Specifications
+## Build & Deployment
+- Android SDK: API 35
+- Target SDK: 35
+- Min SDK: 23
+- Kotlin Version: 1.9.22
+- Gradle Version: 8.2.0
 
-### PiggyBet Model
-- id: String
-- userId: String
-- challengeCategory: String
-- challengeDescription: String
-- rewardTitle: String
-- rewardCategory: String
-- rewardValue: double
-- piggyBankValue: double
-- frequency: String (everyday, weekly, weekdays, weekends)
-- startDate: DateTime
-- endDate: DateTime
-- participantType: String (self, friend)
-- status: String (active, completed, failed)
-- streakCount: int
-- jokerCount: int
-- participantId: String?
-- isPublic: bool
-
-### Home Screen
-- Display active bets
-- Show streak information
-- Quick access to create new bet
-- Navigation to other features
-
-### Place Bet Feature
-- Challenge Details
-  - Category selection
-  - Description input
-  - Frequency selection
-  - Date range selection
-- Reward Details
-  - Category selection
-  - Title input
-  - Piggy bank value setting
-- Participant Selection
-  - Self or Friend option
-
-### Check-in Feature
-- Daily check-in for active bets
-- Streak tracking
-- Joker card usage
-- Success/failure recording
-
-### Friends Feature
-- Friend list management
-- Invite friends to challenges
-- View friend activities
-- Accept/reject bet invitations
-
-### Notifications
-- Daily reminders
-- Streak alerts
-- Friend requests
-- Challenge invitations
-
-### Social Feed Feature
-- Display public bets
-- Allow bet remixing
-- Social interaction options
-- Feed filtering and sorting
-
-### Guest Mode Feature
-- Anonymous authentication
-- Limited feature access
-- Upgrade prompts
-- Deep link handling
-
-## Services
-
-### BetService
-- createBet(PiggyBet bet)
-- getUserBets(String userId)
-- updateBetStatus(String betId, String status)
-- deleteBet(String betId)
-
-### AuthService
-- signIn()
-- signOut()
-- getCurrentUser()
-- updateUserProfile()
-
-### CheckinService
-- recordCheckin(String betId)
-- useJoker(String betId)
-- getStreakCount(String betId)
-
-### InviteService
-- sendInvite(String betId, String friendId)
-- acceptInvite(String inviteId)
-- rejectInvite(String inviteId)
-- generateDynamicLink(String betId)
-- handleInviteLink(String link)
-- trackInviteStatus(String inviteId)
-
-### NotificationService
-- scheduleReminder(String betId)
-- cancelReminder(String betId)
-- sendStreakAlert(String betId)
-
-### SocialFeedService
-- getPublicBets()
-- remixBet(String betId)
-- toggleBetVisibility(String betId, bool isPublic)
-
-## Dependencies
-```yaml
-dependencies:
-  flutter:
-    sdk: flutter
-  firebase_core: ^3.13.0
-  cloud_firestore: ^5.6.7
-  firebase_auth: ^4.15.3
-  firebase_messaging: ^14.7.9
-```
+## Development Guidelines
+1. Feature-first folder structure
+2. Service-based architecture
+3. Clean Architecture principles
+4. Platform-specific implementations separated

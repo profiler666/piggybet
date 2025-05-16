@@ -18,7 +18,7 @@ class AppLinksService {
 
   Future<Uri?> getInitialLink() async {
     try {
-      return await AppLinks().getInitialAppLink();
+      return await AppLinks().getInitialLink();
     } catch (e) {
       return null;
     }
@@ -42,7 +42,7 @@ class AppLinksService {
   }
 
   void _handleAppLink(Uri uri, Function(String) onBetInvite) {
-    if (uri.host == APP_HOST && uri.path == '/join') {
+    if (uri.host == APP_HOST && uri.path.startsWith('/piggybet/join')) {
       final betId = uri.queryParameters['betId'];
       if (betId != null) {
         onBetInvite(betId);

@@ -17,46 +17,50 @@ allprojects {
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
+    kotlin("android")
     id("com.google.gms.google-services")
     id("dev.flutter.flutter-gradle-plugin")
 }
 
 android {
     namespace = "com.example.piggybet"
-    compileSdk = 35
+    compileSdk = 35  // Updated to 35 as required by Firebase plugins
 
     defaultConfig {
         applicationId = "com.example.piggybet"
         minSdk = 23
-        targetSdk = 34
+        targetSdk = 35  // Updated to match compileSdk
         versionCode = 1
         versionName = "1.0"
         multiDexEnabled = true
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "17"
+        freeCompilerArgs += listOf("-Xjvm-default=all")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false // Code shrinking is disabled
-            isShrinkResources = false // Disable resource shrinking
+            isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
-            
-            // Add resource shrinking exceptions
             resValue("string", "asset_statements", "@raw/asset_statements")
         }
+        debug {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+    }
+
+    lint {
+        disable += "Instantiatable"
     }
 }
 
