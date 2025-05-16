@@ -32,6 +32,18 @@
                 <data android:scheme="https" android:host="app.piggybet.com" />
                 <data android:scheme="piggybet" android:host="app.piggybet.com" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data 
+                    android:scheme="https"
+                    android:host="profiler666.github.io"
+                    android:pathPrefix="/piggybet" />
+            </intent-filter>
+            <meta-data
+                android:name="asset_statements"
+                android:resource="@raw/asset_statements" />
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

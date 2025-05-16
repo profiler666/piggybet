@@ -9,6 +9,8 @@ class InviteService {
   Future<String> createInvite({
     required String betId,
     required String inviterId,
+    required String challengeText,
+    required String rewardText,
   }) async {
     try {
       // Create invite record in Firestore
@@ -23,8 +25,14 @@ class InviteService {
       final docRef = await _firestore.collection('invites').add(invite.toMap());
       await docRef.update({'id': docRef.id});
 
-      // Generate app link
-      final inviteLink = await _appLinksService.createInviteLink(betId);
+      // Generate app link with challenge preview
+      final encodedChallenge = Uri.encodeComponent(challengeText);
+      final encodedReward = Uri.encodeComponent(rewardText);
+      final inviteLink = await _appLinksService.createInviteLink(
+        betId: betId,
+        challenge: encodedChallenge,
+        reward: encodedReward,
+      );
       return inviteLink;
     } catch (e) {
       throw Exception('Failed to create invite: $e');

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Join PiggyBet Challenge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%);
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #333;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin: 20px;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .piggy-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .challenge {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 16px 0;
+        }
+        .reward {
+            color: #4CAF50;
+            font-size: 20px;
+            margin: 16px 0;
+        }
+        .cta-button {
+            background: #4CAF50;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 30px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            font-size: 18px;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const betId = urlParams.get('betId');
+            const challengeText = decodeURIComponent(urlParams.get('challenge') || '');
+            const rewardText = decodeURIComponent(urlParams.get('reward') || '');
+            
+            // Update content
+            document.getElementById('challenge').textContent = challengeText;
+            document.getElementById('reward').textContent = rewardText;
+            
+            // Try to open app first
+            window.location.href = `piggybet://profiler666.github.io/piggybet/join?betId=${betId}`;
+            
+            // If app isn't installed, show download button after 1 second
+            setTimeout(() => {
+                document.getElementById('downloadSection').style.display = 'block';
+            }, 1000);
+        }
+    </script>
+</head>
+<body>
+    <div class="card">
+        <div class="piggy-icon">🐷</div>
+        <div class="challenge" id="challenge"></div>
+        <div class="reward" id="reward"></div>
+        <div id="downloadSection" style="display:none">
+            <p>Download PiggyBet to take on this challenge!</p>
+            <a href="downloads/app-release.apk" class="cta-button">Accept Challenge</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -2,12 +2,16 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/services.dart';
 
 class AppLinksService {
-  static const String APP_SCHEME = 'piggybet';
-  static const String APP_HOST = 'app.piggybet.com';
+  static const String APP_SCHEME = 'https';
+  static const String APP_HOST = 'profiler666.github.io';
+  static const String APP_PATH = 'piggybet';
 
-  Future<String> createInviteLink(String betId) async {
-    // Create a deep link in the format: piggybet://app.piggybet.com/join?betId=xyz
-    return '$APP_SCHEME://$APP_HOST/join?betId=$betId';
+  Future<String> createInviteLink({
+    required String betId,
+    required String challenge,
+    required String reward,
+  }) async {
+    return '$APP_SCHEME://$APP_HOST/$APP_PATH/join.html?betId=$betId&challenge=$challenge&reward=$reward';
   }
 
   Stream<Uri> get uriLinkStream => AppLinks().uriLinkStream;

@@ -415,6 +415,8 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
           final inviteLink = await _inviteService.createInvite(
             betId: bet.id,
             inviterId: userId,
+            challengeText: _challengeController.text,
+            rewardText: _rewardController.text,
           );
 
           if (mounted) {
