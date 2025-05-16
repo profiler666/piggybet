@@ -412,13 +412,14 @@ class _PlaceBetScreenState extends State<PlaceBetScreen> {
 
         // If inviting a friend, create and show invite link
         if (_participantType == 'friend') {
+          print('Creating invite link for bet: ${bet.id}');  // Add this debug line
           final inviteLink = await _inviteService.createInvite(
             betId: bet.id,
             inviterId: userId,
             challengeText: _challengeController.text,
             rewardText: _rewardController.text,
           );
-
+          print('Generated invite link: $inviteLink');  // Add this debug line
           if (mounted) {
             Navigator.of(context).pop(); // Remove loading dialog
             await showDialog(
